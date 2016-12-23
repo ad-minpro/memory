@@ -1,0 +1,181 @@
+<div flex layout-fill data-ng-controller="DashboardCtrl">
+  <!-- TOOLBAR -->
+  <md-toolbar class="md-primary md-hue-1 md-whiteframe-z2" md-whiteframe="2">
+    <div class="md-toolbar-tools">
+      <span class="classic_badge">24 TICKETS EN COURS</span>      
+    </div>
+  </md-toolbar>
+  <!-- CONTENT -->
+
+  <md-content layout="row" class="md-padding back-light" ng-cloak>
+    <div flex>
+      <md-grid-list md-cols-xs="1" md-cols-sm="2" md-cols-md="4" md-cols-gt-md="6" md-row-height-gt-md="1:1" md-row-height="2:2" md-gutter="12px" md-gutter-gt-sm="8px" >
+
+<!-- test todo list
+        <md-grid-tile class="yellow" md-rowspan="3" md-colspan="2" md-colspan-sm="1" md-colspan-xs="1">
+
+          <md-grid-tile-header>
+            <h3>This is a header</h3>
+          </md-grid-tile-header>
+
+          <md-list ng-controller="TodoLightCtrl">
+            <md-list-item class="md-2-line" ng-repeat="item in todo">
+              <div flex class="md-list-item-text">
+                <h4>Ticket {{ item.ticket }} - {{ item.history.content.content }}</h4>
+                <span><small>{{ item.history.created | date : 'dd/MM/yyyy à hh:mm' }}</small></span>
+              </div>
+              <md-checkbox class="md-secondary" ng-model="item.history.completed"></md-checkbox>
+              
+            </md-list-item>
+          </md-list>
+        </md-grid-tile>
+-->
+
+        <md-grid-tile class="purple" md-colspan="2">
+          <h1 class="md-display-3 big-numbers">59%</h1>
+          <md-grid-tile-footer>
+            <h3>CLIENTS SATISFAITS</h3>
+          </md-grid-tile-footer>
+        </md-grid-tile>
+
+
+
+
+
+        <md-grid-tile class="indigo">
+          <h1 class="md-display-3 big-numbers">11</h1>
+          <md-grid-tile-footer>
+            <h3>TICKETS OUVERTS</h3>
+          </md-grid-tile-footer>
+        </md-grid-tile>
+
+
+
+        <md-grid-tile class="blue" md-rowspan="1">
+          <h1 class="md-display-3 big-numbers">4</h1>
+          <md-grid-tile-footer>
+            <h3>JOUR(S) /ticket</h3>
+          </md-grid-tile-footer>
+        </md-grid-tile>
+
+        <md-grid-tile class="red"
+            md-rowspan="1" md-colspan="1" md-colspan-sm="1" md-colspan-xs="1">
+            <h1 class="md-display-3 big-numbers">134</h1>
+          <md-grid-tile-footer>
+            <h3>TICKETS</h3>
+          </md-grid-tile-footer>
+        </md-grid-tile>
+
+        <md-grid-tile class="green" md-rowspan="1" >
+          <h1 class="md-display-3 big-numbers">1</h1>
+          <md-grid-tile-footer>
+            <h3>TICKET CLOS</h3>
+          </md-grid-tile-footer>
+        </md-grid-tile>
+
+        <md-grid-tile class="blue" md-rowspan="2" md-colspan="3" md-colspan-sm="1" md-colspan-xs="1">
+          <h1 class="md-display-3 big-numbers"></h1>
+          <md-grid-tile-header>
+            <h3>NEWS</h3>
+          </md-grid-tile-header>
+        </md-grid-tile>
+
+        <md-grid-tile class="grey" md-rowspan="2" md-colspan="3" md-colspan-sm="1" md-colspan-xs="1">
+          <md-grid-tile-header>
+            <h3>DERNIERES ACTIVITES</h3>
+          </md-grid-tile-header>
+          <h1 class="md-display-3 big-numbers"></h1>
+        </md-grid-tile>
+
+      </md-grid-list>
+    </div>
+
+    <!-- 2nd column -->
+    <div flex="30">
+      <md-card class="yellow">
+        <md-card-title>
+          <md-card-title-text>
+            <span class="md-headline">TODO</span>
+          </md-card-title-text>
+        </md-card-title>
+        <md-card-content layout="row">
+          <md-list ng-controller="TodoLightCtrl" ng-cloak>
+            <md-list-item ng-repeat="item in todo">
+              <md-checkbox ng-model="item.history.completed"></md-checkbox>
+              <p>Ticket {{ item.ticket }} - {{ item.history.content.content }}</p>
+                <md-icon ng-show="item.history.content.notify" class="md-warn" ng-click="" md-font-set="material-icons">assignment_late</md-icon>
+            </md-list-item>
+          </md-list>
+        </md-card-content>
+      </md-card>
+    </div>
+
+
+  </md-content>
+</div>    
+<!--
+<div  ng-cloak>
+  <md-content layout-xs="column" layout="row">
+      <md-card>
+        <md-card-title>
+          <md-card-title-text>
+            <span class="md-headline">Card with image</span>
+            <span class="md-subhead">Large</span>
+          </md-card-title-text>
+          <md-card-title-media>
+            <div class="md-media-lg card-media"></div>
+          </md-card-title-media>
+        </md-card-title>
+        <md-card-actions layout="row" layout-align="end center">
+          <md-button>Action 1</md-button>
+          <md-button>Action 2</md-button>
+        </md-card-actions>
+      </md-card>
+      <md-card>
+        <md-card-title>
+          <md-card-title-text>
+            <span class="md-headline">Card with image</span>
+            <span class="md-subhead">Large</span>
+          </md-card-title-text>
+          <md-card-title-media>
+            <div class="md-media-lg card-media"></div>
+          </md-card-title-media>
+        </md-card-title>
+        <md-card-actions layout="row" layout-align="end center">
+          <md-button>Action 1</md-button>
+          <md-button>Action 2</md-button>
+        </md-card-actions>
+      </md-card>      
+      <md-card>
+        <md-card-title>
+          <md-card-title-text>
+            <span class="md-headline">Card with image</span>
+            <span class="md-subhead">Large</span>
+          </md-card-title-text>
+          <md-card-title-media>
+            <div class="md-media-lg card-media"></div>
+          </md-card-title-media>
+        </md-card-title>
+        <md-card-actions layout="row" layout-align="end center">
+          <md-button>Action 1</md-button>
+          <md-button>Action 2</md-button>
+        </md-card-actions>
+      </md-card>      
+      <md-card>
+        <md-card-title>
+          <md-card-title-text>
+            <span class="md-headline">Card with image</span>
+            <span class="md-subhead">Large</span>
+          </md-card-title-text>
+          <md-card-title-media>
+            <div class="md-media-lg card-media"></div>
+          </md-card-title-media>
+        </md-card-title>
+        <md-card-actions layout="row" layout-align="end center">
+          <md-button>Action 1</md-button>
+          <md-button>Action 2</md-button>
+        </md-card-actions>
+      </md-card>                                                          
+  </md-content>
+</div>   
+-->

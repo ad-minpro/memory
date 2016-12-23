@@ -1,0 +1,39 @@
+<md-content layout-fill layout-align="center" layout="row" class="md-margin">
+
+  <div flex="60" layout="column" class="md-padding">
+
+    <div>
+      <md-button class="md-icon-button" aria-label="Profile" ng-click="sort()">
+        <md-icon md-font-set="material-icons">sort</md-icon>
+      </md-button>       
+    </div>
+    <md-list flex>
+
+      <md-list-item class="md-3-line md-long-text" ng-repeat="note in notes">
+        
+        <!--<md-icon class="md-avatar md-warn" md-font-set="material-icons">assignment</md-icon>-->
+        <img src="/static/img/brain.svg" class="md-avatar">
+
+        <div class="md-list-item-text">
+          <h3>{{ note._source.title }}</h3>
+          <!--<h4>{{note._source.created_at | amUtc | amLocal | amDateFormat:'DD/MM/YYYY à HH:mm'}}</h4>-->
+          <p>
+            {{ note._source.content }}
+          </p>
+          <span class="md-caption silver-font">{{note._source.created_at | amUtc | amLocal | amDateFormat:'DD/MM/YYYY à HH:mm'}}</span>
+        </div>
+
+        <div>
+          <span class="my_badge silver" ng-repeat="tag in note._source.tags">{{tag}}</span> 
+        
+
+          <md-button class="md-icon-button" aria-label="Profile" data-ui-sref="notes.note({id: note._id})">
+            <md-icon md-font-set="material-icons">edit</md-icon>
+          </md-button> 
+        </div>
+      </md-list-item>
+      <md-list-item class="md-3-line md-long-text">
+    </md-list>
+  </div>
+</md-content>
+

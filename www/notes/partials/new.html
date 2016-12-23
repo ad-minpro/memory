@@ -1,0 +1,55 @@
+          
+<md-content layout-fill layout-align="center" layout="row" class="md-margin">
+  <div flex="60" layout="column" class="md-padding">
+    <div layout="row">
+      <div flex>
+          <md-input-container class="md-block" flex>
+            <label>Titre</label>
+            <input type="text" ng-model="data.title" ng-model-options="debounce" ng-change="updateTitle(data.title)">
+          </md-input-container>
+      </div>
+    </div>
+    <div layout="row">
+      <div flex>
+        <md-input-container class="md-block" flex>
+          <label>Note</label>
+          <textarea ng-model="data.content" md-maxlength="150" rows="10" md-select-on-focus ng-model-options="debounce" ng-change="save()"></textarea>
+        </md-input-container>
+      </div>
+    </div>
+    <div layout="row" layout-align="center">
+      <div flex class="chipsdemoBasicUsage">
+        <md-chips ng-model="data.tags" readonly="false" md-removable="true" ng-model-options="debounce" md-on-add="save()" md-on-remove="save()"></md-chips>
+      </div>    
+    </div>
+
+    <div layout="row" layout-align="center" class="md-padding">
+      <md-button class="md-raised md-button md-primary" aria-label="Retour" ui-sref="notes.list">
+        <md-icon md-font-set="material-icons">arrow_back</md-icon>
+      </md-button>
+      <span flex></span>
+      <md-button class="md-primary md-raised" ng-click="showConfirm($event)" ng-disabled="!saved">
+        <md-icon md-font-set="material-icons">clear</md-icon>
+      </md-button>                
+    </div>               
+
+    <div layout="row" layout-align="space-between" class="md-margin md-caption silver-font">
+      <span>versions {{ note._version ? note._version : 0 }}</span>
+      <div>
+        créé le {{data.created_at | amUtc | amLocal | amDateFormat:'DD/MM/YYYY à HH:mm'}}
+      </div>
+    </div> 
+
+    <div layout="row" layout-align="space-between" class="md-margin md-caption silver-font">
+      <div ng-show="saved"><b>état</b>  <span class="my_badge lime">sync</span></div>
+      <div ng-show="!saved"><b>état</b>  <span class="my_badge orange">not saved</span></div>
+
+      <span ng-show="note._source.updated_at">
+        dernière modification <time am-time-ago="note._source.updated_at"></time>
+      </span>
+      <span ng-show="!note._source.updated_at">aucune modification</span>
+    </div>               
+
+  </div>
+</md-content>
+
