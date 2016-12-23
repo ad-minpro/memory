@@ -52,7 +52,7 @@ client.search({
 */
 
 
-
+// recherche par aggrégation sur "tags"
 
 client.search({
   index: "memory",
