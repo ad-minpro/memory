@@ -6,7 +6,6 @@ var myapp = angular.module('myapp', [
     'ngAnimate',
 	'ngMdIcons',
     'ui.router', 
-    'md.data.table', 
     'angularMoment', 
     'base64', 
     'ngFileUpload'
