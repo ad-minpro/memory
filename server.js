@@ -5,7 +5,7 @@ var express        = require('express');
 var app            = express();
 var bodyParser     = require('body-parser');
 var methodOverride = require('method-override');
-//var elasticSearch = require('./config/elasticsearch.js');
+var morgan = require('morgan'); 
 var path = require('path');
 
 
@@ -30,13 +30,13 @@ app.use(bodyParser.json({ type: 'application/vnd.api+json' }));
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true })); 
 
-// override with the X-HTTP-Method-Override header in the request. simulate DELETE/PUT
+// simulate DELETE/PUT
 app.use(methodOverride('X-HTTP-Method-Override')); 
 
 // static folders
 app.use(express.static('www'));
-//app.use('/upload', express.static(__dirname + '/upload'));
 
+app.use(morgan('dev')); 
 
 
 
