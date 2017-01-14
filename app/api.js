@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
-var elasticSearch = require('../config/elasticsearch.js');
+var mongo = require('../config/mongo.js');
+var async = require('async');
+
 
 
 var dir = require('./dir');
@@ -39,6 +41,76 @@ router.get('/about', function(req, res) {
 });
 
 
+router.route('/tags')
+
+    .get(function(req, res) {
+
+        var query = mongo.Tag.find({available: true});
+        query.exec(function(err, tags){
+            if(err)
+                res.send(err);
+            res.json(tags);
+        });
+    })
+
+    .post(function(req, res) {
+
+		mongo.Tag.findOneOrCreate({name: req.body.name}, function (err, tag) {
+			if (err)
+				res.json({result: false, data:err});
+
+			res.json({result: true, data:tag});
+		});	  
+    })
+
+    .delete(function(req, res) {
+
+		var query = mongo.Tag.remove({});
+        query.exec(function(err, result){
+        	if (err)
+        		res.json({result: false, data:err});
+
+            res.json({result: true, data:result});
+        });		
+
+    }); 
+
+router.route('/tags/:tag_id')
+
+    .get(function(req, res) {
+		//id: req.params.tag_id
+        var query = mongo.Tag.findById(req.params.tag_id);
+        query.exec(function(err, tag){
+        	if (err)
+        		res.json({result: false, data:err});
+
+            res.json({result: true, data:tag});
+        });
+    })
+
+    .put(function(req, res) {
+    	console.log(req.body);
+    	var query = mongo.Tag.findOneAndUpdate({_id: req.params.tag_id}, req.body, {new: true});
+        query.exec(function(err, tag){
+        	if (err)
+        		res.json({result: false, data:err});
+
+            res.json({result: true, data:tag});
+        });
+	})
+
+    .delete(function(req, res) {
+        var query = mongo.Tag.remove({_id: req.params.tag_id});
+        query.exec(function(err, tag){
+        	if (err)
+        		res.json({result: false, data:err});
+
+            res.json({result: true, data:tag});
+        });
+    }); 
+
+
+// notes
 router.route('/notes')
 
     .get(function(req, res) {
@@ -49,127 +121,137 @@ router.route('/notes')
     	//console.log('params: '+req.query.sort);
     	//console.log('data: '+req.body.data);
 
+        var query = mongo.Todo.find({}).populate('tags');
+        query.exec(function(err, data){
+            if(err)
+                res.json({result: false, data:err});
 
-
-
-    	var results = {};
-
-		elasticSearch.search({
-		  	index: 'memory',
-		  	type: 'notes', 
-			sort: sort, 		  	
-		}).then(function (body) {
-	    	results.timeout = body.timed_out
-	    	results.count = body.hits.total
-	    	results.results = body.hits.hits
-
-	  		res.json(results);
-		}, function (error) {
-			console.trace(error.message);
-			res.send(error);
-		});
-/*
-		elasticSearch.search({index: 'memory',type: 'notes'},function(err,resp,status) {  
-		//console.log("notes:",resp);
-			if (err)
-				res.send(err);
-			res.json(resp.hits.hits);
-		});
-*/
-        /*
-		elasticSearch.count({index: 'memory',type: 'notes'},function(err,resp,status) {  
-		//console.log("notes:",resp);
-			if (err)
-				res.send(err);
-			res.json(resp);
-		});
-		*/
-        
+            res.json({result: true, count: data.length, data:data});
+        });
     })
 
     .post(function(req, res) {
 
-    	data = req.body.data;
-    	data.author = 'Aurelien Roy';
-    	data.created_at = Date.now();
-    	data.available = true;
-        
-		elasticSearch.index({
-			index: 'memory',
-			type: 'notes',
-			body: data
-		}).then(function (body) {
-	  		res.json(body);
-		}, function (error) {
-			console.log(error.message);
-			res.send(error);
-		});
+    	console.log(req.body);
 
-  
-    });
+    	var data = {
+    		author: req.body.author, 
+    		title: req.body.title, 
+    		body:req.body.body
+    	}
+        var todo = new mongo.Todo(data);
 
-router.route('/notes/:note_id')
+        async.waterfall([
+    		function(callback) {
+    			console.log('first function: get tags');
+		        async.each(req.body.tags, 
+		        	function(name, c) {
+						mongo.Tag.findOneOrCreate({name: name}, function (err, tag) {
+							if (err)
+								c(err);
 
-    .get(function(req, res) {
+							todo.tags.push(tag._id);
+							c();
+						});			        		
+		        	},
+		        	function(err) {
+		        		if (err)
+		        			callback(err);
 
-		elasticSearch.get({
-			index: 'memory',
-			type: 'notes',
-			id: req.params.note_id
-		}).then(function (body) {
-	  		res.json(body);
-		}, function (error) {
-			console.log(error.message);
-			res.send(error);
-		});
+		        		callback(null, todo);
+		        	});
+
+    		}, 
+    		function(todo, callback) {
+    			console.log('second function: save todo');
+    			
+		        todo.save(function(err){
+		            if(err)
+		            	callback(err);
+
+		            callback(null, todo);
+		        });
+    		}
+        	], function(err, result) {
+        		console.log('final function: return result');
+        		if (err)
+        			res.send(err);
+   		
+        		res.json({result: true, data:todo});
+    		});
 
     })
 
+    .delete(function(req, res) {
+
+		var query = mongo.Todo.remove({});
+        query.exec(function(err, success){
+        	if (err)
+        		res.send(err);
+            res.json(success)
+        });		
+
+    }); 
+
+
+router.route('/notes/:note_id')
+  
+    .get(function(req, res) {
+		//id: req.params.tag_id
+        var query = mongo.Todo.findById(req.params.tag_id);
+        query.exec(function(err, tag){
+        	if (err)
+        		res.json({result: false, data:err});
+
+            res.json({result: true, data:tag});
+        });
+    })
+
     .put(function(req, res) {
+    	console.log(req.body);
 
-    	data = req.body.data;
-    	data.updated_at = Date.now();
+    	var data = {
+    		author: req.body.author, 
+    		title: req.body.title, 
+    		body:req.body.body, 
+    		tags: []
+    	}
 
-		elasticSearch.index({
-			index: 'memory',
-			type: 'notes',
-			id: req.params.note_id,
-			body: data
-		}).then(function (body) {
-	  		res.json(body);
-		}, function (error) {
-			console.log(error.message);
-			res.send(error);
-		});
+        async.each(req.body.tags, 
+        	function(name, callback) {
+				mongo.Tag.findOneOrCreate({name: name}, function (err, tag) {
+					if (err)
+						callback(err);
+
+					data.tags.push(tag._id);
+					callback();
+				});			        		
+        	},
+        	function(err) {
+        		if (err)
+        			res.json({result: false, data:err});
+
+		    	var query = mongo.Todo.findOneAndUpdate({_id: req.params.tag_id}, data, {new: true});
+		        query.exec(function(err, todo){
+		        	if (err)
+		        		res.json({result: false, data:err});
+
+		            res.json({result: true, data:todo});
+		        });
+        	});
 	})
 
     .delete(function(req, res) {
+        var query = mongo.Todo.remove({_id: req.params.tag_id});
+        query.exec(function(err, todo){
+        	if (err)
+        		res.json({result: false, data:err});
 
-		elasticSearch.delete({
-			index: 'memory',
-			type: 'notes',
-			id: req.params.note_id
-		}).then(function (body) {
-	  		res.json(body);
-		}, function (error) {
-			console.log(error.message);
-			res.send(error);
-		});
-    });   
-/*
-router.route('/notes/files')
-	.post(function(req, res){
-		upload(req,res,function(err){
-			if(err){
-				console.log(err);
-				res.json({error_code:1,err_desc:err});
-				return;
-			}
-			//res.json({error_code:0,err_desc:null});
-			res.status(201).end();
-		})
-	});
-*/
+            res.json({result: true, data:todo});
+        });
+    }); 
+
+
 router.route('/notes/files')
 	.post(function(req, res){
 
