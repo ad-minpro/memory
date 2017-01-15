@@ -1,5 +1,5 @@
 
-myapp.controller('NotesCtrl', function($scope, $rootScope, ApiService){
+myapp.controller('NotesCtrl', function($scope, $rootScope, NoteService){
     $rootScope.page.title = 'Notes';
     var asc = {'sort': 'created_at:asc'};
     var desc = {'sort': 'created_at:desc'};
@@ -13,10 +13,10 @@ myapp.controller('NotesCtrl', function($scope, $rootScope, ApiService){
     };
 
 	$scope.getNotes = function() {
-		ApiService.query(currentSort).$promise
-		.then(function(data) { 
-			console.log('results: '+data.count);
-			$scope.notes = data.results; 
+		NoteService.query(currentSort).$promise
+		.then(function(result) { 
+			console.log('results: '+result.count);
+			$scope.notes = result.data; 
 		})
 		.catch(function(response) { $scope.notes = []; });
 	}

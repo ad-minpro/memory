@@ -15,16 +15,16 @@
         <img src="/static/img/brain.svg" class="md-avatar">
 
         <div class="md-list-item-text">
-          <h3>{{ note._source.title }}</h3>
-          <!--<h4>{{note._source.created_at | amUtc | amLocal | amDateFormat:'DD/MM/YYYY à HH:mm'}}</h4>-->
+          <h3>{{ note.title }}</h3>
+          <!--<h4>{{note.created_at | amUtc | amLocal | amDateFormat:'DD/MM/YYYY à HH:mm'}}</h4>-->
           <p>
-            {{ note._source.content }}
+            {{ note.body }}
           </p>
-          <span class="md-caption silver-font">{{note._source.created_at | amUtc | amLocal | amDateFormat:'DD/MM/YYYY à HH:mm'}}</span>
+          <span class="md-caption silver-font">{{note.created_at | amUtc | amLocal | amDateFormat:'DD/MM/YYYY à HH:mm'}}</span>
         </div>
 
         <div>
-          <span class="my_badge silver" ng-repeat="tag in note._source.tags">{{tag}}</span> 
+          <span class="my_badge silver" ng-repeat="tag in note.tags">{{tag.name}}</span> 
         
 
           <md-button class="md-icon-button" aria-label="Profile" data-ui-sref="notes.note({id: note._id})">

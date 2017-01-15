@@ -122,9 +122,22 @@ myapp.factory('NotesService', function($resource, API) {
   });
 });
 
-myapp.factory('ApiService', function($resource, API) {
+myapp.factory('NoteService', function($resource, API) {
   return $resource(
-    'http://localhost:3000/api/notes/:id', {id: "@id"}, 
+    'http://localhost:3000/api/notes/:id', {id: "@_id"}, 
+    {
+        'get': {method:'GET', isArray: false}, 
+        'save':   {method:'POST'},
+        'update':   {method:'PUT'},
+        'delete':   {method:'DELETE'},
+        'query': {method:'GET', isArray: false}, 
+        'getData': {method:'GET', isArray: false}
+  });
+});
+
+myapp.factory('TagService', function($resource, API) {
+  return $resource(
+    'http://localhost:3000/api/tags/:id', {id: "@id"}, 
     {
         'get': {method:'GET', isArray: false}, 
         'save':   {method:'POST'},

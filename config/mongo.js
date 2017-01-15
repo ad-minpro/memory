@@ -33,8 +33,8 @@ var todoSchema = mongoose.Schema({
     tags: [{ type: Schema.Types.ObjectId, ref: 'Tag' }], 
     available: { type: Boolean, default: true }, 
     hidden: { type: Boolean, default: false }, 
-    created_at: { type: Date, default: Date.now }, 
-    updated_at: { type: Date, default: Date.now }
+    created_at: { type: Date }, 
+    updated_at: { type: Date }
 });
 
 // on every save, add the date
@@ -45,6 +45,24 @@ todoSchema.pre('save', function(next) {
 	this.updated_at = currentDate;
 	if (!this.created_at)
 	this.created_at = currentDate;
+
+	console.log('HOOK ---------> pre save');
+
+	next();
+});
+
+todoSchema.pre('update', function(next) {
+	
+	this.findOneAndUpdate({}, { updated_at: Date.now() });
+	console.log('HOOK ---------> pre update');
+
+	next();
+});
+
+todoSchema.pre('findOneAndUpdate', function(next) {
+
+	this.findOneAndUpdate({}, { updated_at: Date.now() });
+	console.log('HOOK ---------> pre find one and update');
 
 	next();
 });

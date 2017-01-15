@@ -18,17 +18,11 @@ myapp.config(function($stateProvider, $urlRouterProvider) {
         .state('notes', {
             url: '/notes', 
             templateUrl: 'notes/partials/common.html'
-        })
-        
-        .state('notes.new', {
-            url: '/new',
-            templateUrl: 'notes/partials/new.html', 
-            controller: 'NewNoteCtrl'
-        })         
+        })       
 
         .state('notes.note', {
             url: '/note/:id',
-            templateUrl: 'notes/partials/new.html', 
+            templateUrl: 'notes/partials/note.html', 
             controller: 'NoteCtrl'
         })  
 

@@ -1,103 +1,47 @@
 "use strict";
 
-myapp.controller('OldNoteCtrl', function($scope, $rootScope, userService, ApiService){
-    $rootScope.page.title = 'Nouvelle note...';
-    $scope.debounce = {"debounce": 900};
-    $scope.saved = false;
-    var count = 0;
-
-    $scope.data = {};
-
-    var note = new ApiService();
-
-    $scope.updateTitle = function (title) {
-    	$rootScope.page.title = title;
-    	console.log("updateTitle: "+title);
-    	$scope.save();
-    };
-
-    $scope.save = function () {
-    	$scope.saved = false;
-    	count += 1;
-    	console.log("count: "+count);
-    	note.data = $scope.data;
-
-    	if (note.id) { // UPDATE
-    		ApiService.update(note, 
-		        function (response) {
-		            console.log('#update success, id: '+note.id);
-		        	console.log(response);
-
-			    	$scope.saved = true;
-			    	$scope.debug = response;
-		        },
-		        function (response) {
-		            console.log('#update error');
-		            console.log(response);
-
-		            $scope.saved = false;
-		            $scope.debug = response;
-		    });     			
-    	} else { // SAVE (create)
-		    ApiService.save(note, 
-		        function (response) {
-		            console.log('#save success, id: '+response._id);
-			    	note.id = response._id;
-
-			    	$scope.saved = true;
-			    	$scope.debug = response;
-		        },
-		        function (response) {
-		            console.log('#save error');
-		            console.log(response);
-
-		            $scope.saved = false;
-		            $scope.debug = response;
-		    }); 
-    	}
-		
-    };
-});
-
-
-
-myapp.controller('NewNoteCtrl', function($scope, $rootScope, $state, $mdDialog, ApiService){
+myapp.controller('NewNoteCtrl', function($scope, $rootScope, $state, $stateParams, $mdDialog, Messages, ApiService){
 	var count = 0;
-
-    $rootScope.page.title = 'Nouvelle note...';
+	var _id = null;
+	$scope.note = null;
     $scope.debounce = {"debounce": 900};
     $scope.saved = false;
-    $scope.data = {};
-    $scope.data.tags = [];
-    $scope.note = new ApiService();
+    $scope.data = {tags: []};
     
+    
+    var note2data = function (note) {
+		if ($rootScope.page.title != note.title)
+			$rootScope.page.title = note.title;
+
+		$scope.data.author = note.author;
+		$scope.data.title = note.title;
+		$scope.data.body = note.body;
+		$scope.data.tags = [];
+
+		if (note.tags) {
+			for (var tag of note.tags) {
+				if (tag != null)
+					$scope.data.tags.push(tag.name);
+			}
+		}
+    };
 
     var getNote = function (id) {
     	
 		var note = ApiService.get({ id: id });
 		note.$promise
 			.then(function(result) { 
-				note = result;
-				note.id = id;
-				
-				if ($rootScope.page.title != note._source.title)
-					$rootScope.page.title = note._source.title;
+				console.log(result);
+				$scope.note = result.data;
+				note2data(result.data);
 
-				$scope.data = note._source;
-
-				if (!note._source.tags)
-					$scope.data.tags = [];
-				
 				$scope.saved = true;
 
 				console.log('#load => id: '+id);
 			})
 			.catch(function(response) { console.log(response) });
-		return note;
-		
+		//return note;
 	};
-
-
 
     $scope.updateTitle = function (title) {
     	$rootScope.page.title = title;
@@ -109,15 +53,23 @@ myapp.controller('NewNoteCtrl', function($scope, $rootScope, $state, $mdDialog, 
     	$scope.saved = false;
     	count += 1;
     	//console.log("count: "+count);
-    	$scope.note.data = $scope.data;
 
-    	if ($scope.note.id) { // UPDATE NOTE
+    	// data to note
+    	$scope.note.author = $scope.data.author;
+    	$scope.note.title = $scope.data.title;
+    	$scope.note.body = $scope.data.body;
+    	$scope.note.tags = $scope.data.tags;
+
+    	if (_id) { // UPDATE NOTE
+    		//$scope.note._id = _id;
 			ApiService.update($scope.note, 
 		        function (response) {
-		            console.log('#update success, id: '+$scope.note.id);
+		            console.log('#update success, id: '+$scope.note._id);
 			    	$scope.saved = true;
 
-			    	$scope.note = getNote($scope.note.id);
+			    	//$scope.note = getNote($scope.note.id);
+			    	$scope.note = response.data;
+			    	note2data(response.data);			    	
 		        },
 		        function (response) {
 		            console.log('#update error');
@@ -126,11 +78,14 @@ myapp.controller('NewNoteCtrl', function($scope, $rootScope, $state, $mdDialog, 
     	} else {	// CREATE NOTE
 		    ApiService.save($scope.note, 
 		        function (response) {
-		            console.log('#save success, id: '+response._id);
-			    	$scope.note.id = response._id;
+		            console.log('#save success, id: '+response.data._id);
+			    	//$scope.note.id = response._id;
 			    	$scope.saved = true;
 
-			    	$scope.note = getNote(response._id);
+			    	//$scope.note = getNote(response._id);
+			    	$scope.note = response.data;
+			    	note2data(response.data);
+			    	_id = response.data._id;
 		        },
 		        function (response) {
 		            console.log('#save error');
@@ -138,18 +93,21 @@ myapp.controller('NewNoteCtrl', function($scope, $rootScope, $state, $mdDialog, 
 		            $scope.saved = false;
 		    });
     	}
-
-		// LOAD / RELOAD NOTE
-		// $scope.note = getNote($scope.note.id);
     };
 
-
-
+ 
     $scope.delete = function () {
-
-		ApiService.delete($scope.note, 
+    	//$scope.note._id = _id;
+    	console.log($scope.note);
+    	//$scope.note.$delete(
+		ApiService.delete($scope.note._id, 
 	        function (response) {
-	            console.log('#delete success, id: '+note_id);
+	            console.log('#delete success, id: '+_id);
+	            //$scope.showSimpleToast();
+
+	            Messages.new("Note supprimée");
+	            Messages.show();
+
 	        	$state.go('notes.list', {}, { reload: true });
 	        },
 	        function (response) {
@@ -158,7 +116,7 @@ myapp.controller('NewNoteCtrl', function($scope, $rootScope, $state, $mdDialog, 
 	    });
 
     };
- 
+
 	$scope.showConfirm = function(ev) {
 	
 		var confirm = $mdDialog.confirm()
@@ -176,5 +134,15 @@ myapp.controller('NewNoteCtrl', function($scope, $rootScope, $state, $mdDialog, 
 		});
 	};
 
+	// initialization
+	if ($stateParams.id) {
+		_id = $stateParams.id;
+		$rootScope.page.title = 'Chargement...';
+		getNote($stateParams.id);
+		//$scope.note._id = $stateParams.id;
+	} else {
+		$rootScope.page.title = 'Nouvelle note...';
+		$scope.note = new ApiService();
+	}
 
 });

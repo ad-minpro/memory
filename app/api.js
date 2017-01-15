@@ -89,7 +89,7 @@ router.route('/tags/:tag_id')
     })
 
     .put(function(req, res) {
-    	console.log(req.body);
+    	
     	var query = mongo.Tag.findOneAndUpdate({_id: req.params.tag_id}, req.body, {new: true});
         query.exec(function(err, tag){
         	if (err)
@@ -131,8 +131,6 @@ router.route('/notes')
     })
 
     .post(function(req, res) {
-
-    	console.log(req.body);
 
     	var data = {
     		author: req.body.author, 
@@ -197,18 +195,18 @@ router.route('/notes')
 router.route('/notes/:note_id')
   
     .get(function(req, res) {
-		//id: req.params.tag_id
-        var query = mongo.Todo.findById(req.params.tag_id);
-        query.exec(function(err, tag){
+		//id: req.params.note_id
+        var query = mongo.Todo.findById(req.params.note_id).populate('tags');
+        query.exec(function(err, note){
         	if (err)
         		res.json({result: false, data:err});
 
-            res.json({result: true, data:tag});
+        	console.log(note);
+            res.json({result: true, data:note});
         });
     })
 
     .put(function(req, res) {
-    	console.log(req.body);
 
     	var data = {
     		author: req.body.author, 
@@ -231,7 +229,7 @@ router.route('/notes/:note_id')
         		if (err)
         			res.json({result: false, data:err});
 
-		    	var query = mongo.Todo.findOneAndUpdate({_id: req.params.tag_id}, data, {new: true});
+		    	var query = mongo.Todo.findOneAndUpdate({_id: req.params.note_id}, data, {new: true}).populate('tags');
 		        query.exec(function(err, todo){
 		        	if (err)
 		        		res.json({result: false, data:err});
@@ -242,12 +240,12 @@ router.route('/notes/:note_id')
 	})
 
     .delete(function(req, res) {
-        var query = mongo.Todo.remove({_id: req.params.tag_id});
-        query.exec(function(err, todo){
+        var query = mongo.Todo.remove({_id: req.params.note_id});
+        query.exec(function(err, result){
         	if (err)
         		res.json({result: false, data:err});
 
-            res.json({result: true, data:todo});
+            res.json({result: true, data:result});
         });
     }); 
 

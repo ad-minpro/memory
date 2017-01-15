@@ -13,7 +13,7 @@
       <div flex>
         <md-input-container class="md-block" flex>
           <label>Note</label>
-          <textarea ng-model="data.content" md-maxlength="150" rows="10" md-select-on-focus ng-model-options="debounce" ng-change="save()"></textarea>
+          <textarea ng-model="data.body" md-maxlength="150" rows="10" md-select-on-focus ng-model-options="debounce" ng-change="save()"></textarea>
         </md-input-container>
       </div>
     </div>
@@ -34,9 +34,9 @@
     </div>               
 
     <div layout="row" layout-align="space-between" class="md-margin md-caption silver-font">
-      <span>versions {{ note._version ? note._version : 0 }}</span>
+      <span>versions {{ note.__v ? note.__v : 0 }}</span>
       <div>
-        créé le {{data.created_at | amUtc | amLocal | amDateFormat:'DD/MM/YYYY à HH:mm'}}
+        créé le {{more.created_at | amUtc | amLocal | amDateFormat:'DD/MM/YYYY à HH:mm'}}
       </div>
     </div> 
 
@@ -44,12 +44,13 @@
       <div ng-show="saved"><b>état</b>  <span class="my_badge lime">sync</span></div>
       <div ng-show="!saved"><b>état</b>  <span class="my_badge orange">not saved</span></div>
 
-      <span ng-show="note._source.updated_at">
-        dernière modification <time am-time-ago="note._source.updated_at"></time>
+      <span ng-show="more.updated_at">
+        dernière modification <time am-time-ago="more.updated_at"></time>
       </span>
-      <span ng-show="!note._source.updated_at">aucune modification</span>
-    </div>               
-
+      <span ng-show="!more.updated_at">aucune modification</span>
+      <span>_id: {{ data._id }}</span>
+    </div> 
   </div>
+                
 </md-content>
 
