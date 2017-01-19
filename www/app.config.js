@@ -4,7 +4,12 @@ myapp.config(function($stateProvider, $urlRouterProvider) {
     
     $stateProvider
         
-        // HOME STATES AND NESTED VIEWS =======================================
+        .state('login', {
+            url: '/login',
+            templateUrl: 'auth/partials/login.html', 
+            controller: 'LoginCtrl'
+        })
+
         .state('dashboard', {
             url: '/dashboard',
             templateUrl: 'dashboard/partials/dashboard.html'

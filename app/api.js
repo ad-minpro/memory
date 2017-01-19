@@ -1,9 +1,10 @@
 var express = require('express');
 var router = express.Router();
 var mongo = require('../config/mongo.js');
+var config = require('../config/config.js');
 var async = require('async');
-
-
+var passport = require('passport');
+var jwt    = require('jsonwebtoken');
 
 var dir = require('./dir');
 
@@ -40,6 +41,153 @@ router.get('/about', function(req, res) {
 	res.send('About API');
 });
 
+
+// route to authenticate a user
+router.post('/login', function(req, res) {
+
+	mongo.User.findOne({
+		login: req.body.login
+	}, function(err, user) {
+		if (err) throw err;
+
+		if (!user) {
+			res.json({ success: false, message: 'Authentication failed. User not found.' });
+		} else if (user) {
+			user.comparePassword(req.body.password, function (err, success) {
+				if (success && !err) {
+					// if user is found and password is right
+					// create a token
+					var claims = {
+						sub: user._id, 
+						iss: 'memorize_api', 
+						permissions: 'add_note'
+					}
+					
+					var token = jwt.sign(claims, config.secret, {
+						expiresIn : 60*60*24 // expires in 24 hours
+					});
+
+					console.log('---> LOGGED !');
+
+					response = new config.ApiResponse();
+					response.success = true;
+					response.addToken(token);
+					//response.add('token', token);
+					response.add('user', {id: user._id, name: user.name});
+
+					res.json(response);
+
+					// return the information including token as JSON
+					/*
+					res.json({
+						success: true,
+						message: 'Enjoy your token!',
+						token: token
+					});
+					*/
+				} else {
+					res.json({ success: false, message: 'Authentication failed. Wrong password.' });
+				}
+			});
+		}
+	});
+});
+
+// route middleware to verify a token
+router.use(function(req, res, next) {
+
+  // check header or url parameters or post parameters for token
+  var token = req.body.token || req.query.token || req.headers['x-access-token'];
+  
+  console.log('---> CHECK AUTH !');
+  //console.log(req.headers);
+
+  // decode token
+  if (token) {
+
+    // verifies secret and checks exp
+    jwt.verify(token, config.secret, function(err, decoded) {      
+      if (err) {
+        //return res.json({ success: false, message: 'Failed to authenticate token.' });    
+	    return res.status(403).send({ 
+	        success: false, 
+	        message: 'Failed to authenticate token.' 
+	    });        
+      } else {
+        // if everything is good, save to request for use in other routes
+        req.decoded = decoded;
+        req.user_id = decoded.sub;
+
+        //var delta = new Date(decoded.exp*1000);
+        //console.log('exp token: '+delta);
+        next();
+      }
+    });
+
+  } else {
+
+    // if there is no token
+    // return an error
+    return res.status(403).send({ 
+        success: false, 
+        message: 'No token provided.' 
+    });
+    
+  }
+});
+
+
+router.route('/profile')
+
+	.get(function(req, res) {
+		// get auto user profile
+		var query = mongo.User.findById(req.user_id, 'name');
+		query.exec(function(err, result) {
+			if (err) throw err;
+
+			response = new config.ApiResponse();
+			response.success = true; 
+			response.setData(result);
+
+			console.log(response);
+
+			res.json(response);
+
+
+
+		});
+	});
+
+
+router.route('/users')
+
+	.get(function(req, res) {
+		
+		var query = mongo.User.find({});
+		query.exec(function(err, result) {
+			if (err) throw err;
+
+			res.json({ success: true, result:result });
+		});
+	})
+
+	.post(function(req, res) {
+
+	  // create a sample user
+	  var user = new mongo.User({ 
+	    name: 'Aurelien Roy', 
+	    login: 'aurelienroy', 
+	    password: '56973001'
+	  });
+
+	  // save the sample user
+	  user.save(function(err) {
+	    if (err) throw err;
+
+	    console.log('User saved successfully');
+	    res.json({ success: true });
+	  });
+	});
 
 router.route('/tags')
 

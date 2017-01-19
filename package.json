@@ -18,14 +18,18 @@
   "homepage": "https://github.com/ad-minpro/memory#readme",
   "dependencies": {
     "async": "^2.1.4",
+    "bcrypt": "^1.0.2",
     "body-parser": "^1.15.2",
     "elasticsearch": "^12.1.0",
     "express": "^4.14.0",
+    "jsonwebtoken": "^7.2.1",
     "method-override": "^2.3.7",
     "mkdirp": "^0.5.1",
     "mongodb": "^2.2.19",
     "mongoose": "^4.7.6",
     "morgan": "^1.7.0",
-    "multer": "^1.2.0"
+    "multer": "^1.2.0",
+    "node-uuid": "^1.4.7",
+    "passport": "^0.3.2"
   }
 }

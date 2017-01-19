@@ -1,0 +1,28 @@
+<md-content layout-fill layout-align="center" layout="row" class="md-margin">
+  <div flex="40" layout="column" class="md-padding">
+    <div layout="row">
+      <div flex>
+          <md-input-container class="md-block" flex>
+            <label>Utilisateur</label>
+            <input type="text" ng-model="data.login">
+          </md-input-container>
+      </div>
+    </div>
+    <div layout="row">
+      <div flex>
+          <md-input-container class="md-block" flex>
+            <label>Mot de passe</label>
+            <input type="password" ng-model="data.password">
+          </md-input-container>
+      </div>
+    </div> 
+    <div layout="row" layout-align="center" class="md-padding">
+      <span flex></span>
+      <md-button class="md-raised md-button md-primary" aria-label="Retour" ng-click="login()">
+        <md-icon md-font-set="material-icons">done</md-icon>
+      </md-button>
+                   
+    </div>     
+  </div>
+</md-content>
+

@@ -7,7 +7,7 @@ var bodyParser     = require('body-parser');
 var methodOverride = require('method-override');
 var morgan = require('morgan'); 
 var path = require('path');
-
+var config = require('./config/config')
 
 // configuration ===========================================
 var api = require('./app/api');
@@ -18,6 +18,7 @@ var api = require('./app/api');
 // set our port
 var port = 3000; 
 
+app.set('superSecret', config.secret);
 
 
 // get all data/stuff of the body (POST) parameters

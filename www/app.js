@@ -13,7 +13,7 @@ var myapp = angular.module('myapp', [
 ])
 
 myapp.run(function($rootScope) {
-    $rootScope.page = {'title': '', 'subtitle': '' };
+    $rootScope.page = {'title': '', 'subtitle': '', 'username':''};
   });
 
 /*
@@ -22,5 +22,5 @@ myapp.run(function($http) {
 });
 */
 
-myapp.constant('API', 'http://localhost:9200');
+myapp.constant('API', 'http://localhost:3000/api');
 

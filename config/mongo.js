@@ -1,7 +1,9 @@
+var bcrypt = require('bcrypt')
 var mongoose = require('mongoose')
+var config = require('./config')
 var Schema = mongoose.Schema;
-// connect to mongoDB database on modulus.io
-mongoose.connect('mongodb://127.0.0.1:27017/test');
+
+mongoose.connect(config.database);
 
 var tagSchema = mongoose.Schema({
 	//_creator : { type: Number, ref: 'Todo' },
@@ -34,7 +36,8 @@ var todoSchema = mongoose.Schema({
     available: { type: Boolean, default: true }, 
     hidden: { type: Boolean, default: false }, 
     created_at: { type: Date }, 
-    updated_at: { type: Date }
+    updated_at: { type: Date }, 
+    user: [{ type: Schema.Types.ObjectId, ref: 'User' }], 
 });
 
 // on every save, add the date
@@ -70,10 +73,7 @@ todoSchema.pre('findOneAndUpdate', function(next) {
 var Tag = mongoose.model('Tag', tagSchema);
 var Todo = mongoose.model('Todo', todoSchema);
 
-module.exports = {
-	Todo: Todo, 
-	Tag: Tag
-}
+
 
 // TEST
 /*
@@ -165,6 +165,60 @@ function get() {
 var result = getAll();
 console.log(result);
 */
+
+var UserSchema = new Schema({
+  name: {
+        type: String,
+        unique: true,
+        required: true
+    },	
+  login: {
+        type: String,
+        unique: true,
+        required: true
+    },
+  password: {
+        type: String,
+        required: true
+    }
+});
+
+UserSchema.pre('save', function (next) {
+    var user = this;
+    if (this.isModified('password') || this.isNew) {
+        bcrypt.genSalt(10, function (err, salt) {
+            if (err) {
+                return next(err);
+            }
+            bcrypt.hash(user.password, salt, function (err, hash) {
+                if (err) {
+                    return next(err);
+                }
+                user.password = hash;
+                next();
+            });
+        });
+    } else {
+        return next();
+    }
+});
+ 
+UserSchema.methods.comparePassword = function (passw, cb) {
+    bcrypt.compare(passw, this.password, function (err, isMatch) {
+        if (err) {
+            return cb(err);
+        }
+        cb(null, isMatch);
+    });
+};
+ 
+var User = mongoose.model('User', UserSchema);
+
+module.exports = {
+	Todo: Todo, 
+	Tag: Tag, 
+	User: User
+}
 
 var db = mongoose.connection;
 db.on('error', function(err) {
